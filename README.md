@@ -10,14 +10,17 @@ A multi-agent delivery simulation system using real-world map data from OpenStre
 - 🎯 **Dynamic Adaptation** - Autonomous decision-making for departure timing
 - 🔋 **Battery Management** - Realistic energy constraints and depot recharging
 - 🗺️ **Real-World Maps** - Uses OpenStreetMap data for realistic simulations
-- 📊 **Live Visualization** - Real-time matplotlib visualization of agents and routes
+- 📊 **Live Visualization** - Real-time web-based dashboard with interactive maps
+- 🌐 **Web Interface** - Modern UI with real-time updates via WebSockets
 
 ## System Components
 
-### Main Agent (`main_agent.py`)
+### Backend
+
+#### Main Agent (`main_agent.py`)
 Central coordinator (depot) that manages the task queue and implements the Contract Net Protocol for task assignment.
 
-### Delivery Agent (`delivery_agent.py`)
+#### Delivery Agent (`delivery_agent.py`)
 Individual delivery agents with:
 - Battery management (drains while moving, recharges at depot)
 - Capacity constraints (max 5 packages)
@@ -25,15 +28,44 @@ Individual delivery agents with:
 - Route optimization using greedy nearest-neighbor algorithm
 - Dynamic adaptation based on battery, capacity, and remaining tasks
 
-### Package (`package.py`)
+#### Package (`package.py`)
 Simple package class for tracking delivery status and assignments.
 
-### Simulation (`simulation.py`)
-Main simulation engine that:
+#### Simulation Engine (`simulation_engine.py`)
+Wrapper for the multi-agent simulation that:
 - Loads real map data from OpenStreetMap
 - Creates and manages agents and packages
-- Provides real-time visualization
-- Runs step-by-step until all packages are delivered
+- Provides real-time state updates
+- Runs in a separate thread for web interface
+
+#### Web Server (`app.py`)
+Flask application with:
+- REST API endpoints for simulation control
+- WebSocket support for real-time updates
+- Static file serving for frontend
+
+### Frontend
+
+#### Dashboard (`templates/index.html`)
+Modern web interface featuring:
+- Sidebar navigation
+- Orders list with status indicators
+- Interactive Leaflet map
+- Agent status cards
+- Order details panel
+
+#### Styling (`static/css/style.css`)
+Professional blue-themed CSS matching the UI design with:
+- Responsive layout
+- Smooth animations
+- Custom components
+
+#### JavaScript (`static/js/app.js`)
+Frontend logic including:
+- Leaflet map integration
+- Socket.IO real-time communication
+- Dynamic UI updates
+- User interaction handling
 
 ## Installation
 
@@ -59,12 +91,34 @@ source venv/bin/activate  # Linux/Mac
 
 3. Install dependencies:
 ```bash
-python -m pip install osmnx networkx matplotlib
+pip install -r requirements.txt
 ```
 
 ## Usage
 
-Run the simulation:
+### Web-Based Dashboard (Recommended)
+
+1. Start the Flask web server:
+```bash
+python app.py
+```
+
+2. Open your browser and navigate to:
+```
+http://localhost:5000
+```
+
+3. Click "Start Simulation" and configure:
+   - Number of agents
+   - Number of packages
+   - Map location
+   - Battery buffer percentage
+
+4. Watch the real-time simulation on the interactive map!
+
+### Command-Line Simulation (Original)
+
+Run the matplotlib-based simulation:
 ```bash
 python simulation.py
 ```
@@ -76,8 +130,15 @@ python simulation.py | Out-File -Encoding utf8 simulation_log.txt
 
 ## Configuration
 
-You can modify the following parameters in `simulation.py`:
+### Web Interface
+Configure simulation parameters through the web UI when clicking "Start Simulation":
+- Number of agents (1-10)
+- Number of packages (1-100)
+- Map location (any city/district supported by OpenStreetMap)
+- Battery buffer percentage (0-100%)
 
+### Command-Line
+Modify parameters in `simulation.py`:
 - `MAP_QUERY` - Location for the map (default: "Cau Giay District, Hanoi, Vietnam")
 - `NUM_AGENTS` - Number of delivery agents (default: 3)
 - `NUM_PACKAGES` - Number of packages to deliver (default: 20)

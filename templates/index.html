@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent Delivery System</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item">
+                    <i class="fas fa-th-large"></i>
+                </a>
+                <a href="#" class="nav-item active">
+                    <i class="fas fa-box"></i>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-truck"></i>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-comments"></i>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-globe"></i>
+                </a>
+            </nav>
+            <div class="nav-bottom">
+                <a href="#" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-clock"></i>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <h1 class="page-title">Orders</h1>
+                <nav class="top-nav">
+                    <a href="#">Home</a>
+                    <a href="#">About us</a>
+                    <a href="#">Booking</a>
+                    <a href="#">Privacy policy</a>
+                    <a href="#">Terms and conditions</a>
+                </nav>
+                <div class="header-right">
+                    <button class="icon-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button class="icon-btn">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </button>
+                    <div class="user-profile">
+                        <img src="https://ui-avatars.com/api/?name=David+Hussy&background=2563eb&color=fff" alt="User">
+                        <span>David Hussy</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-wrapper">
+                <!-- Orders List -->
+                <div class="orders-panel">
+                    <div class="control-buttons">
+                        <button id="startBtn" class="btn btn-primary">
+                            <i class="fas fa-play"></i> Start Simulation
+                        </button>
+                        <button id="pauseBtn" class="btn btn-secondary" disabled>
+                            <i class="fas fa-pause"></i> Pause
+                        </button>
+                        <button id="stopBtn" class="btn btn-danger" disabled>
+                            <i class="fas fa-stop"></i> Stop
+                        </button>
+                    </div>
+                    
+                    <div class="simulation-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Time Step:</span>
+                            <span id="timeStep" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Completed:</span>
+                            <span id="completedCount" class="stat-value">0/0</span>
+                        </div>
+                    </div>
+
+                    <div id="ordersList" class="orders-list">
+                        <!-- Orders will be populated here -->
+                        <div class="empty-state">
+                            <i class="fas fa-box-open"></i>
+                            <p>Start simulation to see packages</p>
+                        </div>
+                    </div>
+
+                    <div class="agents-section">
+                        <h3>Agents Status</h3>
+                        <div id="agentsList" class="agents-list">
+                            <!-- Agents will be populated here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Map View -->
+                <div class="map-panel">
+                    <div id="map"></div>
+                    <div class="map-controls">
+                        <div class="map-legend">
+                            <div class="legend-item">
+                                <span class="legend-icon depot"></span>
+                                <span>Depot</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-icon available"></span>
+                                <span>Available Agent</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-icon busy"></span>
+                                <span>Busy Agent</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-icon dropoff"></span>
+                                <span>Dropoff Location</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Details Panel (Bottom) -->
+            <div class="order-details-panel">
+                <h3>Order Details</h3>
+                <div id="orderDetails" class="order-details-content">
+                    <p class="empty-message">Select an order to view details</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Configuration Modal -->
+    <div id="configModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Simulation Configuration</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="numAgents">Number of Agents:</label>
+                    <input type="number" id="numAgents" value="3" min="1" max="10">
+                </div>
+                <div class="form-group">
+                    <label for="numPackages">Number of Packages:</label>
+                    <input type="number" id="numPackages" value="20" min="1" max="100">
+                </div>
+                <div class="form-group">
+                    <label for="mapLocation">Map Location:</label>
+                    <input type="text" id="mapLocation" value="Cau Giay District, Hanoi, Vietnam">
+                </div>
+                <div class="form-group">
+                    <label for="bufferPercent">Battery Buffer (%):</label>
+                    <input type="number" id="bufferPercent" value="30" min="0" max="100" step="5">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelConfig" class="btn btn-secondary">Cancel</button>
+                <button id="confirmConfig" class="btn btn-primary">Start Simulation</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Socket.IO -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
