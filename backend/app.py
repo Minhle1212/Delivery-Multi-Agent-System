@@ -4,10 +4,15 @@ from flask import Flask, render_template, jsonify, request
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 import json
+import os
 from threading import Lock
 from simulation_engine import SimulationEngine
 
-app = Flask(__name__)
+# Set up paths for frontend templates and static files
+template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend', 'templates')
+static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend', 'static')
+
+app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 app.config['SECRET_KEY'] = 'delivery-multi-agent-secret-key'
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')

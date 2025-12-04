@@ -67,10 +67,32 @@ Frontend logic including:
 - Dynamic UI updates
 - User interaction handling
 
+## Project Structure
+
+```
+Delivery-Multi-Agent-System/
+├── backend/              # Python backend
+│   ├── app.py           # Flask web server
+│   ├── simulation_engine.py
+│   ├── delivery_agent.py
+│   ├── main_agent.py
+│   ├── package.py
+│   └── simulation.py    # Original CLI version
+├── frontend/            # Web frontend
+│   ├── templates/       # HTML templates
+│   │   └── index.html
+│   └── static/          # CSS, JS, assets
+│       ├── css/
+│       └── js/
+├── requirements.txt     # Python dependencies
+├── start_web.bat       # Windows launcher
+└── start_web.ps1       # PowerShell launcher
+```
+
 ## Installation
 
 ### Requirements
-- Python 3.12 or higher
+- Python 3.10 or higher
 - Virtual environment (recommended)
 
 ### Setup
@@ -98,28 +120,35 @@ pip install -r requirements.txt
 
 ### Web-Based Dashboard (Recommended)
 
-1. Start the Flask web server:
+**Option 1: Use launcher scripts**
+- Windows: Double-click `start_web.bat`
+- PowerShell: Run `.\start_web.ps1`
+
+**Option 2: Manual start**
 ```bash
+cd backend
 python app.py
 ```
 
-2. Open your browser and navigate to:
+Then open your browser and navigate to:
 ```
 http://localhost:5000
 ```
 
-3. Click "Start Simulation" and configure:
-   - Number of agents
-   - Number of packages
+**Using the Dashboard:**
+1. Click "Start Simulation"
+2. Configure parameters:
+   - Number of agents (1-10)
+   - Number of packages (1-100)
    - Map location
    - Battery buffer percentage
-
-4. Watch the real-time simulation on the interactive map!
+3. Watch the real-time simulation on the interactive map!
 
 ### Command-Line Simulation (Original)
 
 Run the matplotlib-based simulation:
 ```bash
+cd backend
 python simulation.py
 ```
 

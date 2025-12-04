@@ -13,4 +13,5 @@ Write-Host "Press Ctrl+C to stop the server"
 Write-Host "========================================"
 Write-Host ""
 
+Set-Location backend
 python app.py
