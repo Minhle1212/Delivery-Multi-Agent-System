@@ -84,28 +84,36 @@ class SimulationEngine:
         while self.is_running and any(p.status != 'delivered' and p.status != 'cancelled' 
                                      for p in self.all_tasks):
             if not self.is_paused:
-                with self.lock:
-                    print(f"\n--- Time Step: {self.time_step} ---")
+                try:
+                    with self.lock:
+                        print(f"\n--- Time Step: {self.time_step} ---")
+                        
+                        # Update agents
+                        for agent in self.supervisor.agents:
+                            agent.update(
+                                self.supervisor.location,
+                                self.buffer_percent,
+                                self.supervisor.pending_tasks
+                            )
+                        
+                        # Check and assign tasks
+                        self.supervisor.check_and_assign_tasks()
+                        
+                        self.time_step += 1
                     
-                    # Update agents
-                    for agent in self.supervisor.agents:
-                        agent.update(
-                            self.supervisor.location,
-                            self.buffer_percent,
-                            self.supervisor.pending_tasks
-                        )
-                    
-                    # Check and assign tasks
-                    self.supervisor.check_and_assign_tasks()
-                    
-                    # Emit update to frontend
+                    # Emit update to frontend (outside lock to prevent blocking)
                     if self.socketio:
-                        state = self.get_current_state()
-                        self.socketio.emit('simulation_update', state)
+                        try:
+                            state = self.get_current_state()
+                            self.socketio.emit('simulation_update', state)
+                        except Exception as e:
+                            print(f"Warning: Failed to emit state: {e}")
                     
-                    self.time_step += 1
-                
-                time.sleep(0.5)  # Control simulation speed
+                    time.sleep(0.5)  # Control simulation speed
+                except Exception as e:
+                    print(f"Error in simulation loop: {e}")
+                    import traceback
+                    traceback.print_exc()
             else:
                 time.sleep(0.1)  # Small sleep when paused
         
@@ -120,6 +128,7 @@ class SimulationEngine:
     def get_current_state(self):
         """Get current state of the simulation for frontend"""
         with self.lock:
+            print(f"Getting current state for time step {self.time_step}")
             agents_data = []
             for agent in self.supervisor.agents:
                 agent_info = {
